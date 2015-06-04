@@ -1,5 +1,7 @@
 package net.lotrek.jSQL.server;
 
+import net.lotrek.jSQL.transact.ServerArch.UserPermission;
+
 public class ServerConfig
 {
 	private EncryptionSetting encSet;
@@ -41,7 +43,14 @@ public class ServerConfig
 
 	public static interface AuthProvider
 	{
-		public boolean isValidCredentials(String username, String password);
+		public LoginContext generateLogin(String username, String password);
+	}
+	
+	public static interface LoginContext
+	{
+		public boolean hasPermission(UserPermission perm);
+		public void grantPermission(UserPermission perm);
+		public void revokePermission(UserPermission perm);
 	}
 	
 	public static enum EncryptionSetting

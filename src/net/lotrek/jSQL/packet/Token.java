@@ -90,8 +90,30 @@ public class Token
 			dos.write(oldValue, 0, oldValue.length);
 		}),
 		ERROR(0xAA, new String[]{
-				
+				"Number",
+				"State",
+				"Class",
+				"MsgText",
+				"ServerName",
+				"ProcName",
+				"LineNumber"
 		}, (dos, prop) -> {
+			int number = (int)prop.get("Number"), state = (int)prop.get("State"), clazz = (int)prop.get("Class"), lineNumber = (int)prop.get("LineNumber");
+			String msgText = (String)prop.get("MsgText"), serverName = (String)prop.get("ServerName"), procName = (String)prop.get("ProcName");
+			
+			dos.writeShort(16 + 2*(msgText.length() + serverName.length() + procName.length()));
+			dos.writeInt(Integer.reverseBytes(number));
+			dos.writeByte(state);
+			dos.writeByte(clazz);
+			
+			dos.writeShort(Short.reverseBytes((short)msgText.length()));
+			SQLTools.writeVarchar(msgText, dos);
+			dos.writeByte(serverName.length());
+			SQLTools.writeVarchar(serverName, dos);
+			dos.writeByte(procName.length());
+			SQLTools.writeVarchar(procName, dos);
+			
+			dos.writeInt(lineNumber);
 			
 		}),
 		FEATUREEXTACK(0xAE, new String[]{

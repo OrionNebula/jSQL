@@ -65,7 +65,12 @@ public class ServerClient implements Runnable
 						sock.close();
 						throw new RuntimeException(new SQLServerException(SQLServerExceptionType.UNEXPECTED_PACKET, String.format("Recieved %s when %s was expected", pack.getClass(), getConnectionState().getExpectingClass())));
 					}
-					conState = ConnectionState.valueOf(getConnectionState().getResponse().write(getServer(), pack, dos));
+					conState = ConnectionState.valueOf(getConnectionState().getResponse().write(getServer(), this, pack, dos));
+					if(conState == ConnectionState.FINAL)
+					{
+						terminate();
+						break;
+					}
 				}
 			} catch (IOException | InstantiationException | IllegalAccessException e) {
 				e.printStackTrace();
@@ -85,6 +90,7 @@ public class ServerClient implements Runnable
 		if(isConnected())
 			sock.close();
 		
+		if(Thread.currentThread() != th)
 		try {
 			th.join();
 		} catch (InterruptedException e) {

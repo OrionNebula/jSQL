@@ -1,6 +1,7 @@
 package net.lotrek.jSQL;
 
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -109,5 +110,23 @@ public class SQLTools
 			short ch = (short) str.charAt(i);
 			dos.writeShort(Short.reverseBytes(ch));
 		}
+	}
+	
+	public static String readVarchar(int len, DataInputStream dis) throws IOException
+	{
+		String toReturn = "";
+		for (int i = 0; i < len; i++)
+			toReturn += (char)Short.reverseBytes(dis.readShort());
+		
+		return toReturn;
+	}
+	
+	public static String readVarchar(byte[] data) throws IOException
+	{
+		String toReturn = "";
+		for (int i = 0; i < data.length; i+=2)
+			toReturn += (char)((data[i+1] << 8) | (data[i]));
+		
+		return toReturn;
 	}
 }

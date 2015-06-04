@@ -2,7 +2,7 @@ package net.lotrek.jSQL.packet;
 
 public enum PacketType
 {
-	BATCH(1, null),
+	BATCH(1, SQLBatch.class),
 	LEGACYLOGIN(2, null),
 	RPC(3, null),
 	TABULAR(4, null),
