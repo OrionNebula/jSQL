@@ -51,8 +51,30 @@ public class Token
 			
 		}),
 		COLMETADATA(0x81, new String[]{
-				
+				"Count",
+				"UserType",
+				"fCaseSen",
+				"fNullable",
+				"usUpdateable",
+				"fIdentity",
+				"fComputed",
+				"usReservedODBC",
+				"fFixedLenCLRType",
+				"fSparseColumnSet",
+				"fHidden",
+				"fKey",
+				"fNullableUnknown",
+				"TableName",
+				"ColName",
+				"NoMetaData"
 		}, (dos, prop) -> {
+			if((boolean)prop.get("NoMetaData"))
+			{
+				dos.writeShort(-1);
+				return;
+			}
+			
+			
 			
 		}),
 		DONE(0xFD, new String[]{

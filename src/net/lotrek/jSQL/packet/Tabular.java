@@ -31,5 +31,4 @@ public class Tabular implements SQLPacket
 	{
 		return baos.size();
 	}
-
 }

@@ -1,8 +1,6 @@
 package net.lotrek.jSQL.server;
 
 import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
 import net.lotrek.jSQL.SQLTools;
@@ -15,6 +13,7 @@ import net.lotrek.jSQL.packet.PreLogin.PRELOGIN_OPTION;
 import net.lotrek.jSQL.packet.SQLBatch;
 import net.lotrek.jSQL.packet.Token.TokenType;
 import net.lotrek.jSQL.server.ServerConfig.LoginContext;
+import net.lotrek.jSQL.transact.StatementContext;
 import net.lotrek.jSQL.packet.SQLPacket;
 import net.lotrek.jSQL.packet.Tabular;
 import net.lotrek.jSQL.packet.Token;
@@ -107,7 +106,6 @@ public enum ConnectionState
 		head.setTotLength(8 + tabStream.size());
 		
 		SQLTools.sendAggrigatePacket(dos, head, tabPacket);
-		SQLTools.sendAggrigatePacket(new DataOutputStream(new FileOutputStream(new File("sendPack.bin"))), head, tabPacket);
 		
 		return passAuth != null ? "LOGGEDIN" : "FINAL";
 	}),
@@ -121,6 +119,21 @@ public enum ConnectionState
 		String toProcess = SQLTools.readVarchar(pack.getPacketData());
 		
 		System.out.println(toProcess);
+		StatementContext exec = new StatementContext();
+		exec.processStatements(toProcess);
+		
+		PacketHeader head = new PacketHeader().setEOM(true).setSpid(SQLTools.getPID()).setPacketId(1).setType(PacketType.TABULAR);
+		Tabular tabPacket = new Tabular();
+		DataOutputStream tabStream = new DataOutputStream(tabPacket.getStream());
+		try{
+			new Token(TokenType.COLMETADATA)
+			.setProperty("Count", 1).write(tabStream);
+		}catch(Exception e)
+		{
+			e.printStackTrace(server.getServerOut());
+		}
+		
+		SQLTools.sendAggrigatePacket(dos, head, tabPacket);
 		
 		return "LOGGEDIN";
 	}),
